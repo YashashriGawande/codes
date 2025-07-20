@@ -1,0 +1,69 @@
+# Install Dependencies
+
+- sudo apt-get install -y bison ca-certificates flex gcc libdumbnet-dev libluajit-5.1-dev libnghttp2-dev libpcap-dev libpcre3-dev libssl-dev make openssl wget zlib1g-dev
+
+### Install DAQ library
+
+- cd tmp
+- sudo mkdir -p /usr/src/snort_src 
+- ls -l /usr/src/snort_src/
+- sudo tar -zxf daq-2.0.7
+- cd daq
+- sudo ./configure
+- sudo make
+- sudo make install
+
+### Install Snort from Source
+
+- sudo cp /tmp/snort.2.9.20
+- ls -l
+- cd
+
+### create symlink
+
+- ls -l /usr/include/tirpc/
+- sudo ln -s /usr/include/tirpc/netconfig.h /usr/include/
+rest commands in list
+
+- cd /usr/src/snort_src/snort/snort-2.9.20  ....install snort here 
+- sudo ./configure
+- sudo make 
+- sudo make install
+- sudo ldconfig
+- sudo snort -V
+- sudo snort -i ens33
+- cd
+
+- sudo groupadd snort
+- sudo useradd snort -r -s /usr/sbin/nologin -c SNORT_IDS -g snort
+- sudo mkdir -p /etc/snort/rules
+- sudo mkdir /var/log/snort
+- sudo mkdir /usr/local/lib/snort_dynamicrules
+- sudo cp /usr/src/snort_src/snort-2.9.20/etc/*.conf*  /etc/snort/
+- sudo cp /usr/src/snort_src/snort-2.9.20/etc/*.map  /etc/snort/
+- sudo touch /etc/snort/rules/white_list.rules
+- sudo touch /etc/snort/rules/black_list.rules
+- sudo touch /etc/snort/rules/local.rules
+- sudo chmod -R 5775 /etc/snort/
+- sudo chmod -R 5775 /var/log/snort/
+- sudo chmod -R 5775 /usr/local/lib/snort_dynamicrules/
+- sudo chown -R snort:snort /etc/snort
+- sudo chown -R snort:snort /var/log/snort
+- sudo chown -R snort:snort /usr/local/lib/snort_dynamicrules/
+- sudo nano /etc/snort/snort.conf
+
+around line no 104
+
+var RULE_PATH /etc/snort/rules
+var SO_RULE_PATH /etc/snort/so_rules
+var PREPROC_RULE_PATH /etc/snort/preproc_rules    
+
+below # site specific rules
+now delete all the rules and write only three rules
+
+include $RULE_PATH/local.rules
+include $RULE_PATH/white_list.rules
+include $RULE_PATH/black_list.rules
+
+- sudo snort -T -c /etc/snort/snort.conf
+- sudo snort -i ens33 -u snort -g snort -c /etc/snort/snort.conf -A console
