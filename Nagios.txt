@@ -1,0 +1,77 @@
+# Pre-requisites
+
+configure hostname
+configure static IP
+configure apt
+install sudo 
+set the time-zone 
+---- sudo dpkg-reconfigure tzdata
+---- set Asia/Kolkata
+
+# Installation Steps:-
+
+- copy and paste files in scp (nagios files)
+- sudo mkdir tmp
+- cd tmp
+
+## 1. Install dependencies
+
+- sudo apt-get install apache2 apache2-utils autoconf gcc libc6 libgd-dev make php python3 tree unzip wget libkrb5-dev openssl libssl-dev
+
+## 2. Download the source code of nagios
+
+- tar -zxf nagios-4.5.0.tar.gz
+- ls -l
+- cd nagios-4.5.0
+- ls -l
+- sudo ./configure --with-httpd-conf=/etc/apache2/sites-enabled
+- sudo make all 
+
+## 3. Create Nagios user and group
+
+- sudo make install-groups-users
+- sudo passwd nagios
+  password:- admin
+- cat /etc/passwd
+- sudo usermod -a -G nagios www-data
+- sudo make install
+- sudo make install-daemoninit
+- sudo make install-commandmode
+- ls -l /usr/local/nagios 
+- sudo make install-config
+- sudo make install-webconf
+- sudo a2enmod cgi
+- sudo a2enmod rewrite
+- sudo htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+
+  username:- nagiosadmin
+  password:- admin@123
+  
+- sudo /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+- sudo systemctl restart nagios
+- sudo systemctl restart apache2
+
+# Browser
+
+type ip/nagios/
+192.168.80.101/nagios/
+click on services and see
+
+
+# Nagios Plugins
+
+- tar -zxf nagios-plugins-2.4.8.tar.gz
+  
+- sudo apt-get install -y automake autotools-dev bc build-essential dc gawk gettext libmcrypt-dev libnet-snmp-perl libssl-dev snmp
+
+cd /tmp/nagios-plugins ...............inside it
+
+- sudo ./configure
+- sudo make
+- sudo make install
+-  ls /usr/local/nagios/libexec/
+
+
+
+
+
