@@ -1,0 +1,119 @@
+
+	######## nagios monitoring of windows host #########
+	
+	************packages:**********
+	
+		1. ncpa-2.1.9.exe   --->windows
+		2. check_ncpa.tar.gz  ---> linux(nagi_server)
+		3. 	nagios-4.5.0.tar.gz---> linux(nagi_server)
+	
+	====================================================================
+	
+	- install --->>> ncpa-2.1.9.exe in windows 
+	
+	- give password 
+	
+	type the windows ip in browser ---> https://192.168.1.106:5693
+	
+	
+in linux :
+	
+		- download the  --->>> check_ncpa.tar.gz
+	
+		- extract the tar deb file in /tmp 
+			check_ncpa.py   
+		
+		- paste in  cd /usr/local/nagios/libexec/
+		
+		- sudo nano check_ncpa.py  
+			change --> to python3
+
+		- sudo ./check_ncpa.py  -t password1234 -H 192.168.1.106 -M memory/virtual
+		
+					if u not given password for ncpa use this command -->sudo ./check_ncpa.py -H 192.168.1.106 -M memory/virtual
+ 
+		
+		- sudo nano /usr/local/nagios/etc/objects/commands.cfg
+		
+		### in host section ###
+			define command {
+
+    command_name    check_ncpa
+    command_line    $USER1$/check_ncpa.py -H $HOSTNAME$ $ARG1$
+}
+
+
+	sudo nano /usr/local/nagios/etc/nagios.cfg	
+		
+	- uncomment the  -->>cfg_dir=/usr/local/nagios/etc/servers
+
+	- create directory ---> in /usr/local/nagios/etc/servers	
+		create a win10-1.cfg file ---> in that folder
+	
+	- uncomment the service windows server groups ----> in template.cfg
+
+		 hostgroups                      windows-servers --> in host section
+			
+			
+	define host{
+			use                 windows-server
+			host_name           win10-1
+			alias               windows-10 sys
+			address             192.168.80.133
+			max_check_attempts      5
+	}
+
+	define service{
+			use                 generic-service
+			host_name           win10-1
+			service_description  ncpa agent versio
+			check_command        check_ncpa!-t 'password1234' -p -P 5>
+	}
+
+		
+		## to verify the nagios
+		
+	sudo /usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+
+	- sudo systemctl restart nagios
+	
+	- check the browser and refresh --->  http://192.168.80.128/nagios
+
+
+
+================ services ===========
+
+define host {
+    use                     windows-server
+    host_name               win10-1
+    alias                   Windows 10 System
+    address                 192.168.80.133
+    max_check_attempts      5
+}
+
+define service {
+    use                     generic-service
+    host_name               win10-1
+    service_description     CPU Average Usage
+    check_command           check_ncpa!-t 'password1234' -P 5693 -M cpu/percent -q "aggregate=avg" -w 70 -c 90
+}
+
+define service {
+    use                     generic-service
+    host_name               win10-1
+    service_description     Virtual Memory Usage
+    check_command           check_ncpa!-t 'password1234' -P 5693 -M memory/virtual -w 70 -c 90
+}
+
+define service {
+    use                     generic-service
+    host_name               win10-1
+    service_description     Process Count
+    check_command           check_ncpa!-t 'password1234' -P 5693 -M processes -w 50 -c 80
+}
+define service {
+    use                     generic-service
+    host_name               win10-1
+    service_description     System Uptime
+    check_command           check_ncpa!-t 'password1234' -P 5693 -M system/uptime
+}
